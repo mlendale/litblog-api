@@ -1,27 +1,27 @@
 class Api::V1::UsersController < ApplicationController
- before_filter :load_user, :only => [:show, :update, :destroy]
+ before_action :load_user, :only => [:show]
+  before_action :load_user_update, :only => [:update, :destroy]
  
  def index
     users=User.all
-    render jsonapi: users, each_serializer: UserSerializer, root: 'users', status: :ok
+    render jsonapi: users, root: 'users', status: :ok
  end
  
  #Show one user. For testing but will not be used.
  def show    
-    render jsonapi: @user, serializer: UserSerializer
+    render jsonapi: @user, include: ["posts"]
  end
  
 # Create user
  def create
    user = User.new(user_params)
-   respond_to do |format|
-     if user.save
-       render jsonapi: user, serializer: UserSerializer, status: :created
-     else
+   if user.save
+     render jsonapi: user, serializer: UserSerializer, status: :created
+   else
        #render jsonapi: user.errors, status: :unprocessable_entity 
-       render jsonapi: user, status: :unprocessable_entity, serializer: ActiveModel::Serializer::ErrorSerializer
-     end
+     render jsonapi: user.errors, status: :unprocessable_entity, serializer: ActiveModel::Serializer::ErrorSerializer
    end
+  
  end
 
 # Update user
@@ -30,8 +30,7 @@ class Api::V1::UsersController < ApplicationController
        @user.reload #Is it needed?
        render jsonapi: @user, status: :ok
      else
-       render jsonapi: user, status: :unprocessable_entity, serializer: ActiveModel::Serializer::ErrorSerializer
-       #render jsonapi: @user.errors, status: :unprocessable_entity 
+       render jsonapi: @user, status: :unprocessable_entity, serializer: ActiveModel::Serializer::ErrorSerializer
      end
  end
 
@@ -43,8 +42,16 @@ class Api::V1::UsersController < ApplicationController
  end
 
  def load_user
-   @user = User.find_by(name: params[:id])
-   render jsonapi: @user, status: :not_found , serializer: ActiveModel::Serializer::ErrorSerializer unless @user.present?
+   render_not_found unless @user = User.find_by(name: params[:id])
+   
+ end
+ 
+  def load_user_update
+   render_not_found unless @user = User.find_by(id: params[:id])
+ end
+ 
+ def render_not_found
+	render jsonapi: 'User not found', serializer: ActiveModel::Serializer::ErrorSerializer, status: :not_found
  end
 
 end

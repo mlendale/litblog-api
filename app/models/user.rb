@@ -1,8 +1,6 @@
 class User < ApplicationRecord
   before_create :generate_authentication_token
   has_many :posts
-  
- 
   before_save { self.email.downcase! }
 
   validates :name, presence: true, length: { maximum: 50 },uniqueness: { case_sensitive: false }
@@ -13,6 +11,7 @@ class User < ApplicationRecord
 
   has_secure_password
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
+  validates :authentication_token, uniquebess: true, presence: true
       
     # Create a password digest from a string
     # Useful for unit tests
