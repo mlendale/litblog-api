@@ -1,5 +1,6 @@
 class Api::V1::PostsController < ApplicationController
   before_action :load_post, :only => [:show, :update, :destroy]
+  before_action :authenticate_user!, :only => [:create, :update]
   
   def index
     posts=Post.all

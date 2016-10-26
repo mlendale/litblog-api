@@ -11,7 +11,7 @@ class User < ApplicationRecord
 
   has_secure_password
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
-  validates :authentication_token, uniquebess: true, presence: true
+  validates :authentication_token, uniqueness: true
       
     # Create a password digest from a string
     # Useful for unit tests

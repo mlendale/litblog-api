@@ -1,10 +1,12 @@
 class Api::V1::UsersController < ApplicationController
- before_action :load_user, :only => [:show]
-  before_action :load_user_update, :only => [:update, :destroy]
+  before_action :load_user_index, :only => [:index]
+  before_action :load_user, :only => [:show, :update, :destroy]
+  after_action :verify_authorized, :only => [:update]
+  before_action :authenticate_user!, :only => [:create, :update]
  
  def index
-    users=User.all
-    render jsonapi: users, root: 'users', status: :ok
+    
+    render jsonapi: @users, include: ["posts"], root: 'users', status: :ok
  end
  
  #Show one user. For testing but will not be used.
@@ -26,6 +28,7 @@ class Api::V1::UsersController < ApplicationController
 
 # Update user
  def update
+     authorize @user
      if @user.update_attributes(user_params)
        @user.reload #Is it needed?
        render jsonapi: @user, status: :ok
@@ -41,12 +44,12 @@ class Api::V1::UsersController < ApplicationController
    ActiveModelSerializers::Deserialization.jsonapi_parse!(params, only: [:name, :email, :password, :password_confirmation] )
  end
 
- def load_user
-   render_not_found unless @user = User.find_by(name: params[:id])
-   
+  #Access via query parameter(users?name="user_name")
+ def load_user_index
+   render_not_found unless @users = User.find_by(name: params[:name])
  end
  
-  def load_user_update
+ def load_user
    render_not_found unless @user = User.find_by(id: params[:id])
  end
  
