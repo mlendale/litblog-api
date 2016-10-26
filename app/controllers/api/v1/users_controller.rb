@@ -2,7 +2,7 @@ class Api::V1::UsersController < ApplicationController
   before_action :load_user_index, :only => [:index]
   before_action :load_user, :only => [:show, :update, :destroy]
   after_action :verify_authorized, :only => [:update]
-  before_action :authenticate_user!, :only => [:create, :update]
+  before_action :authenticate_user!, :only => [ :update]
  
  def index
     
