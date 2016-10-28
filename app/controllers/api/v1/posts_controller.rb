@@ -1,6 +1,7 @@
 class Api::V1::PostsController < ApplicationController
   before_action :load_post, :only => [:show, :update, :destroy]
-  before_action :authenticate_user!, :only => [:create, :update]
+  before_action :authenticate_user!, :only => [:create, :update, :destroy]
+  after_action :verify_authorized, :only => [:create, :update, :destroy]
   
   def index
     posts=Post.all
@@ -14,6 +15,7 @@ class Api::V1::PostsController < ApplicationController
   
  # Create post
   def create
+  authorize Post
   post = Post.new(post_params)
     respond_to do |format|
       if post.save
@@ -26,7 +28,7 @@ class Api::V1::PostsController < ApplicationController
 
 # Update post
   def update
-   
+    authorize @user
     respond_to do |format|
       if @post.update_attributes(post_params)
         #@post.reload #Is it needed?
@@ -37,6 +39,11 @@ class Api::V1::PostsController < ApplicationController
     end
   end
  
+ def destroy
+    authorize @post
+    @post.destroy!
+    render jsonapi: 'Post deleted', serializer: ActiveModel::Serializer::ErrorSerializer, status: :no_content
+  end
 
  
   private

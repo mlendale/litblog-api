@@ -21,14 +21,14 @@ class Api::V1::UsersController < ApplicationController
      render jsonapi: user, serializer: UserSerializer, status: :created
    else
        #render jsonapi: user.errors, status: :unprocessable_entity 
-     render jsonapi: user.errors, status: :unprocessable_entity, serializer: ActiveModel::Serializer::ErrorSerializer
+     render jsonapi: user, status: :unprocessable_entity, serializer: ActiveModel::Serializer::ErrorSerializer
    end
   
  end
 
 # Update user
  def update
-     authorize @user
+     authorize @post
      if @user.update_attributes(user_params)
        @user.reload #Is it needed?
        render jsonapi: @user, status: :ok

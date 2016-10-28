@@ -1,5 +1,8 @@
 class UserPolicy < ApplicationPolicy
-  attr_reader :user, :post
+  attr_reader :user, :record
+  def create?
+    return true
+  end
 
   def update?
     return true if @record.id == @user.id

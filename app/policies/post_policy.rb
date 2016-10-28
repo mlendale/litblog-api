@@ -1,12 +1,25 @@
 class PostPolicy < ApplicationPolicy
   attr_reader :user, :record
-
+  
+  def initialize(user,post)
+    @post = post
+    @user=user
+  end 
+  
+  def owned
+    @post.user_id == @user.id
+  end
+  
+  def create?
+    owned
+  end
+  
   def update?
-    return true if @record.user == user
+    owned
   end
 
   def destroy?
-    return true if @record.user == user
+    owned
   end
 
 end
